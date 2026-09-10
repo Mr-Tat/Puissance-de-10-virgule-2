@@ -1,0 +1,1162 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Défis virgule — ×10 et ÷10</title>
+<style>
+:root{
+  --bg:#17202b;
+  --bg2:#243241;
+  --panel:#f6f3ed;
+  --card:#fffdf9;
+  --ink:#202733;
+  --muted:#66717e;
+  --line:#d8d4cb;
+  --cyan:#137f8e;
+  --cyan2:#0aa4a6;
+  --cyan-soft:#e8f6f5;
+  --orange:#e98b2a;
+  --orange-soft:#fff0dd;
+  --green:#25845e;
+  --green-soft:#e8f5ee;
+  --red:#cf4c58;
+  --red-soft:#fdecef;
+  --yellow:#f2be4d;
+  --comma:#d77812;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  min-height:100vh;
+  font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  color:var(--ink);
+  background:
+    radial-gradient(circle at 12% 14%,rgba(10,164,166,.08),transparent 22%),
+    radial-gradient(circle at 88% 8%,rgba(242,190,77,.08),transparent 20%),
+    linear-gradient(145deg,#e3e6e9,#f0f1f2);
+  padding:18px;
+}
+.shell{
+  width:min(1220px,100%);
+  margin:0 auto;
+  background:var(--panel);
+  border-radius:28px;
+  overflow:hidden;
+  box-shadow:0 22px 55px rgba(49,58,67,.16);
+  border:1px solid rgba(255,255,255,.25);
+}
+header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:15px 22px;
+  background:
+    linear-gradient(90deg,rgba(10,164,166,.10),rgba(242,190,77,.08)),
+    var(--card);
+  border-bottom:1px solid #e5e0d7;
+}
+.brand{display:flex;align-items:center;gap:12px}
+.logo{
+  width:42px;height:42px;border-radius:13px;
+  display:grid;place-items:center;
+  font-size:1.25rem;font-weight:950;color:white;
+  background:linear-gradient(145deg,var(--cyan2),var(--cyan));
+  box-shadow:0 6px 14px rgba(19,127,142,.24);
+}
+h1{font-size:clamp(1.15rem,2vw,1.55rem);margin:0}
+.header-info{font-weight:800;color:var(--muted)}
+main{padding:18px 22px 22px}
+button{
+  font:inherit;font-weight:850;border:0;border-radius:13px;
+  min-height:46px;padding:10px 17px;cursor:pointer;
+  touch-action:manipulation;-webkit-tap-highlight-color:transparent;
+  transition:.15s ease;
+}
+button:hover{transform:translateY(-1px)}
+button:disabled{opacity:.48;cursor:not-allowed;transform:none}
+.primary{
+  color:#fff;
+  background:linear-gradient(135deg,var(--cyan2),var(--cyan));
+  box-shadow:0 7px 16px rgba(19,127,142,.2);
+}
+.secondary{
+  color:#42505e;background:#ebe8e2;border:1px solid #dcd7cf;
+}
+.menu-btn{min-height:38px;padding:7px 12px;font-size:.9rem}
+
+/* MENU */
+.menu-screen{padding:25px 8px 34px}
+.menu-kicker{
+  text-align:center;color:var(--cyan);font-weight:950;
+  letter-spacing:.09em;text-transform:uppercase;font-size:.78rem;
+}
+.menu-title{
+  text-align:center;font-size:clamp(2rem,5vw,3.2rem);
+  line-height:1.05;margin:7px 0 9px;
+}
+.menu-subtitle{
+  max-width:700px;text-align:center;margin:0 auto 26px;
+  color:var(--muted);font-weight:650;line-height:1.45;
+}
+.mode-grid{
+  max-width:1120px;margin:auto;
+  display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:15px;
+}
+.mode-card{
+  min-height:205px;text-align:left;padding:20px;
+  display:flex;flex-direction:column;justify-content:space-between;
+  border:2px solid #dedad2;
+  background:var(--card);
+  border-radius:22px;
+  box-shadow:0 10px 20px rgba(31,38,45,.07);
+}
+.mode-card:hover{border-color:#75b8bd;box-shadow:0 14px 25px rgba(19,127,142,.11)}
+.mode-top{display:flex;align-items:center;gap:12px}
+.mode-symbol{
+  width:52px;height:52px;border-radius:15px;display:grid;place-items:center;
+  font-size:1.75rem;font-weight:950;color:#fff;
+  background:linear-gradient(145deg,var(--cyan2),var(--cyan));
+}
+.mode-name{font-size:1.25rem;font-weight:950}
+.mode-desc{margin:11px 0 0;color:var(--muted);line-height:1.35;font-weight:620}
+.last-line{margin-top:18px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.last-score{font-size:.9rem;font-weight:900;color:#46515e}
+.mode-card[data-mode="sudden"] .last-score{
+  font-size:1.18rem;
+  font-weight:950;
+  color:#a95810;
+  padding:8px 12px;
+  border-radius:12px;
+  background:var(--orange-soft);
+  border:1px solid #edc08a;
+}
+.score-dots{display:flex;gap:4px}
+.score-dot{
+  width:10px;height:10px;border-radius:50%;background:#d8d4cb;
+}
+.score-dot.good{background:var(--green)}
+.score-dot.helped{background:var(--orange)}
+.score-dot.bad{background:var(--red)}
+.legend{
+  max-width:700px;margin:22px auto 0;
+  display:flex;justify-content:center;gap:18px;flex-wrap:wrap;
+  color:var(--muted);font-size:.88rem;font-weight:750;
+}
+.legend span{display:flex;align-items:center;gap:6px}
+.legend i{width:10px;height:10px;border-radius:50%;display:inline-block}
+
+/* EXERCICES */
+.topline{
+  display:flex;justify-content:space-between;align-items:center;
+  gap:12px;margin-bottom:12px;flex-wrap:wrap;
+}
+.page-title{font-size:1.25rem;font-weight:950}
+.page-pill{
+  padding:7px 11px;border-radius:999px;
+  background:var(--cyan-soft);color:var(--cyan);font-size:.88rem;font-weight:900;
+}
+.streak-pill{
+  display:none;
+  padding:8px 13px;border-radius:999px;
+  background:#fff0dd;color:#b96513;border:1px solid #edbd82;
+  font-size:.92rem;font-weight:950;
+}
+.streak-pill.visible{display:inline-flex;align-items:center;gap:6px}
+.exercise-list{display:flex;flex-direction:column;gap:10px}
+.exercise{
+  border:2px solid #dfdbd3;
+  border-radius:17px;background:var(--card);
+  overflow:hidden;transition:.2s ease;
+}
+.exercise.good{border-color:#80bba0;background:linear-gradient(90deg,var(--green-soft),var(--card) 20%)}
+.exercise.helped{border-color:#e8b273;background:linear-gradient(90deg,var(--orange-soft),var(--card) 20%)}
+.exercise.bad{border-color:#e09ca5;background:linear-gradient(90deg,var(--red-soft),var(--card) 20%)}
+.exercise.unscored{opacity:.62;background:#f1efea}
+.exercise.sudden .exercise-main{
+  grid-template-columns:40px minmax(260px,1fr) minmax(165px,220px);
+}
+.exercise.sudden .feedback{grid-column:2 / 4}
+.exercise-main{
+  min-height:72px;display:grid;
+  grid-template-columns:40px minmax(260px,1fr) minmax(165px,220px) 118px;
+  gap:12px;align-items:center;padding:9px 13px;
+}
+.ex-number{
+  width:34px;height:34px;border-radius:11px;
+  display:grid;place-items:center;
+  background:#ebe8e2;color:#59636f;font-weight:950;
+}
+.equation{font-size:clamp(1.25rem,2.4vw,1.75rem);font-weight:900;white-space:nowrap}
+.answer-wrap{position:relative}
+.answer{
+  width:100%;height:48px;border-radius:12px;
+  border:2px solid #cfcac1;background:#fff;
+  padding:8px 12px;font-size:1.35rem;font-weight:850;
+  color:var(--ink);outline:none;text-align:center;
+}
+.answer:focus{border-color:var(--cyan2);box-shadow:0 0 0 4px rgba(10,164,166,.1)}
+.answer:disabled{opacity:1;color:var(--ink);background:#f8f6f2}
+.assist-toggle{
+  display:flex;align-items:center;justify-content:flex-start;gap:8px;
+  min-height:44px;font-size:.88rem;color:#54606c;font-weight:850;
+  cursor:pointer;user-select:none;
+}
+.assist-toggle input{
+  appearance:none;width:25px;height:25px;margin:0;
+  border-radius:8px;border:2px solid #aeb6bb;background:#fff;
+  display:grid;place-items:center;cursor:pointer;
+}
+.assist-toggle input:checked{border-color:var(--orange);background:var(--orange-soft)}
+.assist-toggle input:checked::after{
+  content:"✓";font-size:1rem;font-weight:950;color:var(--orange);
+}
+.assist-toggle input:disabled{cursor:default}
+.feedback{
+  grid-column:2 / 5;
+  min-height:18px;margin-top:-7px;
+  font-size:.86rem;font-weight:850;
+}
+.exercise.good .feedback{color:var(--green)}
+.exercise.helped .feedback{color:var(--orange)}
+.exercise.bad .feedback{color:var(--red)}
+
+/* ASSISTANCE */
+.assistance{
+  display:none;padding:10px 15px 15px;
+  border-top:1px dashed #d9d1c5;
+  background:
+    repeating-linear-gradient(0deg,rgba(19,127,142,.025),rgba(19,127,142,.025) 1px,transparent 1px,transparent 22px),
+    #faf8f3;
+}
+.assistance.open{display:block}
+.assist-head{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  margin-bottom:7px;flex-wrap:wrap;
+}
+.assist-title{font-size:.86rem;font-weight:900;color:#69737e}
+.reset-help{
+  min-height:34px;padding:5px 10px;border-radius:9px;
+  font-size:.78rem;background:#ece8e0;color:#5d6873;
+}
+.board-scroll{overflow-x:auto;padding:1px 2px 3px}
+.board{
+  --cell:48px;
+  display:grid;grid-template-columns:repeat(11,var(--cell));
+  width:max-content;margin:0 auto;
+}
+.digit-cell{
+  width:var(--cell);height:51px;
+  display:grid;place-items:center;
+  font-size:1.42rem;font-weight:900;
+  border-top:2px solid #c9c6be;border-bottom:2px solid #c9c6be;
+  border-right:1px solid #d7d3cb;background:#fff;
+  cursor:pointer;position:relative;user-select:none;
+}
+.digit-cell:first-child{border-left:2px solid #c9c6be;border-radius:11px 0 0 11px}
+.digit-cell:last-child{border-right:2px solid #c9c6be;border-radius:0 11px 11px 0}
+.digit-cell.empty:hover{background:#f5faf9}
+.digit-cell.added-zero{color:#37414c}
+.digit-cell.boundary::after{
+  content:"";position:absolute;right:-3px;top:-2px;bottom:-2px;
+  width:5px;background:#52616d;border-radius:4px;z-index:4;
+}
+.comma-row{
+  --cell:48px;
+  display:grid;grid-template-columns:repeat(10,var(--cell));
+  width:max-content;margin:-7px auto 0;
+  touch-action:none;user-select:none;
+}
+.comma-slot{
+  width:var(--cell);height:37px;position:relative;
+  display:grid;place-items:center;
+  cursor:pointer;touch-action:none;
+}
+.comma-slot::before{
+  content:"";position:absolute;width:25px;height:27px;
+  border:2px dashed #d9a95e;border-radius:8px;background:#fff5df;
+}
+.comma-slot.selected::before{
+  border-style:solid;border-color:var(--comma);background:#ffe4b0;
+  box-shadow:0 4px 10px rgba(215,120,18,.18);
+}
+.comma,.comma-ghost{
+  position:relative;z-index:2;font-size:1.4rem;font-weight:950;
+  color:#a75d0c;transform:translateY(-2px);pointer-events:none;
+}
+.comma-ghost{opacity:.58}
+.help-tip{
+  text-align:center;font-size:.78rem;color:#7a838c;font-weight:700;margin-top:4px;
+}
+
+/* FOOTER ACTIONS */
+.actions{
+  display:flex;justify-content:space-between;gap:10px;
+  align-items:center;margin-top:14px;flex-wrap:wrap;
+}
+.page-message{font-size:.9rem;font-weight:850;color:var(--red);min-height:20px}
+.right-actions{display:flex;gap:10px;flex-wrap:wrap}
+
+/* RESULT */
+.result-screen{text-align:center;padding:36px 12px 44px}
+.result-kicker{text-transform:uppercase;letter-spacing:.1em;color:var(--cyan);font-size:.78rem;font-weight:950}
+.result-title{font-size:clamp(2rem,5vw,3rem);font-weight:950;margin:7px 0 17px}
+.big-result{
+  display:inline-flex;align-items:baseline;gap:4px;
+  padding:16px 28px;border-radius:21px;
+  background:#fff;border:2px solid #ddd8cf;
+  box-shadow:0 10px 24px rgba(31,38,45,.08);
+}
+.big-result strong{font-size:3.2rem}
+.big-result span{font-size:1.3rem;font-weight:900;color:var(--muted)}
+.result-breakdown{
+  margin:17px auto 23px;display:flex;justify-content:center;gap:10px;flex-wrap:wrap;
+}
+.breakdown-pill{padding:8px 12px;border-radius:999px;font-size:.88rem;font-weight:900}
+.breakdown-pill.green{background:var(--green-soft);color:var(--green)}
+.breakdown-pill.orange{background:var(--orange-soft);color:#bd6813}
+.breakdown-pill.red{background:var(--red-soft);color:var(--red)}
+.result-dots{justify-content:center;margin:0 auto 24px}
+.result-dots .score-dot{width:15px;height:15px}
+.result-buttons{display:flex;justify-content:center;gap:10px;flex-wrap:wrap}
+.hidden{display:none!important}
+
+@media(max-width:1050px){
+  .mode-grid{grid-template-columns:repeat(2,minmax(0,1fr));max-width:760px}
+}
+@media(max-width:850px){
+  .mode-grid{grid-template-columns:1fr;max-width:570px}
+  .mode-card{min-height:165px}
+  .exercise-main{
+    grid-template-columns:38px minmax(190px,1fr) minmax(130px,180px);
+  }
+  .assist-toggle{grid-column:2 / 4;justify-self:start}
+  .feedback{grid-column:2 / 4}
+  .exercise.sudden .exercise-main{grid-template-columns:38px minmax(190px,1fr) minmax(130px,180px)}
+}
+@media(max-width:590px){
+  body{padding:7px}
+  .shell{border-radius:17px}
+  header,main{padding-left:12px;padding-right:12px}
+  .exercise-main{
+    grid-template-columns:34px 1fr;
+    gap:7px 10px;
+  }
+  .equation{font-size:1.25rem}
+  .answer-wrap{grid-column:2}
+  .assist-toggle{grid-column:2}
+  .feedback{grid-column:2}
+  .answer{max-width:220px;text-align:left}
+  .exercise.sudden .exercise-main{grid-template-columns:34px 1fr}
+  .exercise.sudden .answer-wrap{grid-column:2}
+  .exercise.sudden .feedback{grid-column:2}
+}
+</style>
+</head>
+<body>
+<div class="shell">
+  <header>
+    <div class="brand">
+      <button id="menuBtn" class="secondary menu-btn hidden">← Menu</button>
+      <div class="logo">10</div>
+      <h1>Défis virgule</h1>
+    </div>
+    <div id="headerInfo" class="header-info"></div>
+  </header>
+
+  <main>
+    <section id="menuScreen" class="menu-screen">
+      <div class="menu-kicker">Série rapide</div>
+      <h2 class="menu-title">10 calculs, à ton rythme.</h2>
+      <p class="menu-subtitle">
+        Réponds directement si tu peux. Si tu en as besoin, ouvre l’aide visuelle d’un calcul pour manipuler la virgule et les zéros.
+      </p>
+
+      <div class="mode-grid">
+        <button class="mode-card" data-mode="multiplication">
+          <div>
+            <div class="mode-top">
+              <div class="mode-symbol">×</div>
+              <div class="mode-name">Multiplication</div>
+            </div>
+            <p class="mode-desc">10 calculs avec × 10, × 100 et × 1000.</p>
+          </div>
+          <div class="last-line">
+            <span class="last-score" data-last-label="multiplication">Dernier score : — / 10</span>
+            <span class="score-dots" data-dots="multiplication"></span>
+          </div>
+        </button>
+
+        <button class="mode-card" data-mode="division">
+          <div>
+            <div class="mode-top">
+              <div class="mode-symbol">÷</div>
+              <div class="mode-name">Division</div>
+            </div>
+            <p class="mode-desc">10 calculs avec ÷ 10, ÷ 100 et ÷ 1000.</p>
+          </div>
+          <div class="last-line">
+            <span class="last-score" data-last-label="division">Dernier score : — / 10</span>
+            <span class="score-dots" data-dots="division"></span>
+          </div>
+        </button>
+
+        <button class="mode-card" data-mode="mixed">
+          <div>
+            <div class="mode-top">
+              <div class="mode-symbol">±</div>
+              <div class="mode-name">Mélange des deux</div>
+            </div>
+            <p class="mode-desc">5 multiplications et 5 divisions dans un ordre aléatoire.</p>
+          </div>
+          <div class="last-line">
+            <span class="last-score" data-last-label="mixed">Dernier score : — / 10</span>
+            <span class="score-dots" data-dots="mixed"></span>
+          </div>
+        </button>
+
+        <button class="mode-card" data-mode="sudden">
+          <div>
+            <div class="mode-top">
+              <div class="mode-symbol">⚡</div>
+              <div class="mode-name">Mort subite</div>
+            </div>
+            <p class="mode-desc">Calculs mélangés à l’infini. Pas d’aide : une seule erreur et la série s’arrête.</p>
+          </div>
+          <div class="last-line">
+            <span class="last-score" data-last-label="sudden">Record : —</span>
+          </div>
+        </button>
+      </div>
+
+      <div class="legend">
+        <span><i style="background:var(--green)"></i> Réussi sans aide</span>
+        <span><i style="background:var(--orange)"></i> Réussi avec aide</span>
+        <span><i style="background:var(--red)"></i> À revoir</span>
+      </div>
+    </section>
+
+    <section id="exerciseScreen" class="hidden">
+      <div class="topline">
+        <div class="page-title" id="pageTitle">Page 1</div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <div class="streak-pill" id="streakPill">⚡ 0 réussi</div>
+          <div class="page-pill" id="modePill"></div>
+        </div>
+      </div>
+
+      <div id="exerciseList" class="exercise-list"></div>
+
+      <div class="actions">
+        <div id="pageMessage" class="page-message"></div>
+        <div class="right-actions">
+          <button id="validatePageBtn" class="primary">Valider les 5 réponses</button>
+          <button id="nextPageBtn" class="primary hidden">Page suivante →</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="resultScreen" class="result-screen hidden">
+      <div class="result-kicker" id="resultKicker">Série terminée</div>
+      <div class="result-title" id="resultTitle">Ton résultat</div>
+      <div class="big-result"><strong id="resultTotal">0</strong><span id="resultDenom">/ 10</span></div>
+      <div class="result-breakdown" id="resultBreakdown">
+        <span class="breakdown-pill green" id="resultGreen">0 sans aide</span>
+        <span class="breakdown-pill orange" id="resultOrange">0 avec aide</span>
+        <span class="breakdown-pill red" id="resultRed">0 à revoir</span>
+      </div>
+      <div class="score-dots result-dots" id="resultDots"></div>
+      <div class="result-buttons">
+        <button class="secondary" id="resultMenuBtn">Retour au menu</button>
+        <button class="primary" id="retryBtn">Nouvelle série</button>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script>
+(() => {
+"use strict";
+
+const FACTORS=[10,100,1000];
+const CELL_COUNT=11;
+const PAGE_SIZE=5;
+const SERIES_SIZE=10;
+
+const $=s=>document.querySelector(s);
+const menuScreen=$("#menuScreen");
+const exerciseScreen=$("#exerciseScreen");
+const resultScreen=$("#resultScreen");
+const exerciseList=$("#exerciseList");
+const pageTitle=$("#pageTitle");
+const modePill=$("#modePill");
+const headerInfo=$("#headerInfo");
+const menuBtn=$("#menuBtn");
+const validatePageBtn=$("#validatePageBtn");
+const nextPageBtn=$("#nextPageBtn");
+const pageMessage=$("#pageMessage");
+const streakPill=$("#streakPill");
+
+let currentMode=null;
+let currentPage=0;
+let exercises=[];
+let pageLocked=false;
+let suddenScore=0;
+let suddenEnded=false;
+let suddenSeen=new Set();
+
+function randInt(min,max){return Math.floor(Math.random()*(max-min+1))+min}
+function choice(arr){return arr[Math.floor(Math.random()*arr.length)]}
+function shuffle(arr){
+  const a=[...arr];
+  for(let i=a.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [a[i],a[j]]=[a[j],a[i]];
+  }
+  return a;
+}
+function numberDisplay(intPart, fracPart=""){
+  return fracPart ? `${intPart},${fracPart}` : String(intPart);
+}
+function generateSource(type){
+  const factor=choice(FACTORS);
+  const kind=randInt(0,4);
+  let display;
+
+  if(type==="multiplication"){
+    if(kind===0){
+      display=String(randInt(2,99));
+    }else if(kind===1){
+      display=numberDisplay(randInt(1,99),String(randInt(1,9)));
+    }else if(kind===2){
+      display=numberDisplay(randInt(1,9),String(randInt(10,99)));
+    }else if(kind===3){
+      // favorise les cas où des zéros seront à compléter
+      const fracLen=factor===10 ? 0 : factor===100 ? choice([0,1]) : choice([0,1,2]);
+      if(fracLen===0) display=String(randInt(2,89));
+      if(fracLen===1) display=numberDisplay(randInt(1,9),String(randInt(1,9)));
+      if(fracLen===2) display=numberDisplay(randInt(1,9),String(randInt(10,99)));
+    }else{
+      display=numberDisplay(randInt(10,99),String(randInt(1,9)));
+    }
+  }else{
+    if(kind===0){
+      display=String(randInt(2,999));
+    }else if(kind===1){
+      display=String(randInt(2,99));
+    }else if(kind===2){
+      display=numberDisplay(randInt(1,99),String(randInt(1,9)));
+    }else if(kind===3){
+      display=numberDisplay(randInt(10,99),String(randInt(10,99)));
+    }else{
+      // beaucoup de cas qui font apparaître 0,0...
+      display=String(randInt(2,9));
+    }
+  }
+  return {type,display,value:factor};
+}
+
+function makeSeries(mode){
+  const types = mode==="mixed"
+    ? shuffle([...Array(5).fill("multiplication"),...Array(5).fill("division")])
+    : Array(10).fill(mode);
+
+  const seen=new Set();
+  const list=[];
+  for(const type of types){
+    let ex, key, tries=0;
+    do{
+      ex=generateSource(type);
+      key=`${ex.type}|${ex.display}|${ex.value}`;
+      tries++;
+    }while(seen.has(key) && tries<100);
+    seen.add(key);
+    list.push({
+      ...ex,
+      answer:"",
+      assistanceUsed:false,
+      helpOpen:false,
+      helpState:null,
+      result:null
+    });
+  }
+  return list;
+}
+
+
+function makeSuddenPage(){
+  // Au moins deux multiplications et deux divisions sur chaque page.
+  const types=shuffle([
+    "multiplication","multiplication",
+    "division","division",
+    choice(["multiplication","division"])
+  ]);
+  const list=[];
+  for(const type of types){
+    let ex,key,tries=0;
+    do{
+      ex=generateSource(type);
+      key=`${ex.type}|${ex.display}|${ex.value}`;
+      tries++;
+    }while(suddenSeen.has(key) && tries<150);
+    suddenSeen.add(key);
+    list.push({
+      ...ex,
+      answer:"",
+      assistanceUsed:false,
+      helpOpen:false,
+      helpState:null,
+      result:null
+    });
+  }
+  return list;
+}
+
+function parseDisplay(display){
+  const hasComma=display.includes(",");
+  const [intPart,fracPart=""]=display.split(",");
+  return {hasComma,intPart,fracPart,digits:intPart+fracPart};
+}
+
+function exactShift(display,shift){
+  const p=parseDisplay(display);
+  let digits=p.digits;
+  let pos=p.hasComma ? p.intPart.length : digits.length;
+  const newPos=pos+shift;
+  let out;
+
+  if(newPos<=0){
+    out="0,"+"0".repeat(-newPos)+digits;
+  }else if(newPos>=digits.length){
+    out=digits+"0".repeat(newPos-digits.length);
+  }else{
+    out=digits.slice(0,newPos)+","+digits.slice(newPos);
+  }
+  return normalizeDisplay(out);
+}
+
+function normalizeDisplay(s){
+  s=String(s).replace(".",",");
+  let [a,b=""]=s.split(",");
+  a=a.replace(/^0+(?=\d)/,"");
+  if(a==="") a="0";
+  if(b){
+    b=b.replace(/0+$/,"");
+    if(b==="") return a;
+    return `${a},${b}`;
+  }
+  return a;
+}
+
+function expected(ex){
+  const shift=Math.round(Math.log10(ex.value))*(ex.type==="multiplication" ? 1 : -1);
+  return exactShift(ex.display,shift);
+}
+
+function numericValue(s){
+  const cleaned=String(s).trim().replace(/\s/g,"").replace(",",".");
+  if(cleaned==="") return NaN;
+  return Number(cleaned);
+}
+
+function isCorrect(given,ex){
+  const a=numericValue(given);
+  const b=numericValue(expected(ex));
+  return Number.isFinite(a)&&Math.abs(a-b)<1e-10;
+}
+
+function buildHelpState(ex){
+  const parsed=parseDisplay(ex.display);
+  const shift=Math.round(Math.log10(ex.value));
+  const baseOffset=parsed.hasComma ? parsed.intPart.length-1 : parsed.digits.length-1;
+
+  let start;
+  if(ex.type==="multiplication"){
+    const maxStartByTarget=(CELL_COUNT-2)-baseOffset-shift;
+    const maxStartByDigits=CELL_COUNT-parsed.digits.length;
+    start=Math.max(0,Math.min(2,maxStartByTarget,maxStartByDigits));
+  }else{
+    const minStart=Math.max(0,shift-baseOffset);
+    const maxStart=CELL_COUNT-parsed.digits.length;
+    start=Math.min(maxStart,Math.max(3,minStart));
+  }
+
+  const digitPositions=parsed.digits.split("").map((_,i)=>start+i);
+  const originalCommaSlot=start+baseOffset;
+  return {
+    parsed,start,digitPositions,
+    originalCommaSlot,
+    selectedCommaSlot:originalCommaSlot,
+    addedZeros:[]
+  };
+}
+
+function modeName(mode){
+  if(mode==="multiplication") return "Multiplication";
+  if(mode==="division") return "Division";
+  if(mode==="sudden") return "Mort subite";
+  return "Mélange";
+}
+
+function saveLastResult(){
+  const statuses=exercises.map(ex=>ex.result);
+  try{
+    localStorage.setItem("decimalSprint_"+currentMode,JSON.stringify(statuses));
+  }catch(e){}
+}
+
+function loadLast(mode){
+  try{
+    const raw=localStorage.getItem("decimalSprint_"+mode);
+    if(!raw) return null;
+    const data=JSON.parse(raw);
+    return Array.isArray(data)&&data.length===10 ? data : null;
+  }catch(e){return null}
+}
+
+function renderMenuScores(){
+  ["multiplication","division","mixed"].forEach(mode=>{
+    const data=loadLast(mode);
+    const label=document.querySelector(`[data-last-label="${mode}"]`);
+    const dots=document.querySelector(`[data-dots="${mode}"]`);
+    dots.innerHTML="";
+    if(!data){
+      label.textContent="Dernier score : — / 10";
+      for(let i=0;i<10;i++){
+        const d=document.createElement("i"); d.className="score-dot"; dots.appendChild(d);
+      }
+      return;
+    }
+    const total=data.filter(x=>x==="good"||x==="helped").length;
+    const helped=data.filter(x=>x==="helped").length;
+    label.textContent=`Dernier : ${total}/10${helped ? ` · ${helped} aidé${helped>1?"s":""}` : ""}`;
+    data.forEach(status=>{
+      const d=document.createElement("i");
+      d.className="score-dot "+(status||"bad");
+      dots.appendChild(d);
+    });
+  });
+
+  const suddenLabel=document.querySelector('[data-last-label="sudden"]');
+  let record=0;
+  try{record=Number(localStorage.getItem("decimalSprint_sudden_best")||0)}catch(e){}
+  suddenLabel.textContent=record ? `Record : ${record} réussi${record>1?"s":""} de suite` : "Record : —";
+}
+
+function startSeries(mode){
+  currentMode=mode;
+  currentPage=0;
+  pageLocked=false;
+
+  if(mode==="sudden"){
+    suddenScore=0;
+    suddenEnded=false;
+    suddenSeen=new Set();
+    exercises=makeSuddenPage();
+  }else{
+    exercises=makeSeries(mode);
+  }
+
+  menuScreen.classList.add("hidden");
+  resultScreen.classList.add("hidden");
+  exerciseScreen.classList.remove("hidden");
+  menuBtn.classList.remove("hidden");
+  renderPage();
+}
+
+function renderPage(){
+  pageLocked=false;
+  validatePageBtn.classList.remove("hidden");
+  nextPageBtn.classList.add("hidden");
+  pageMessage.textContent="";
+  pageMessage.style.color="";
+  modePill.textContent=modeName(currentMode);
+  exerciseList.innerHTML="";
+
+  const isSudden=currentMode==="sudden";
+  streakPill.classList.toggle("visible",isSudden);
+
+  if(isSudden){
+    pageTitle.textContent=`Page ${currentPage+1} · Exercices ${currentPage*5+1} à ${currentPage*5+5}`;
+    streakPill.textContent=`⚡ ${suddenScore} réussi${suddenScore>1?"s":""} de suite`;
+    headerInfo.textContent=`Mort subite · ${suddenScore} réussi${suddenScore>1?"s":""}`;
+    for(let local=0;local<PAGE_SIZE;local++){
+      exerciseList.appendChild(makeExerciseElement(exercises[local],local,local+1));
+    }
+  }else{
+    pageTitle.textContent=`Page ${currentPage+1} sur 2 · Exercices ${currentPage*5+1} à ${currentPage*5+5}`;
+    headerInfo.textContent=`${modeName(currentMode)} · ${currentPage===0 ? "1/2" : "2/2"}`;
+    const start=currentPage*PAGE_SIZE;
+    for(let local=0;local<PAGE_SIZE;local++){
+      const globalIndex=start+local;
+      const ex=exercises[globalIndex];
+      exerciseList.appendChild(makeExerciseElement(ex,globalIndex,local+1));
+    }
+  }
+}
+
+function makeExerciseElement(ex,index,number){
+  const article=document.createElement("article");
+  article.className="exercise"+(currentMode==="sudden" ? " sudden" : "");
+  article.dataset.index=index;
+
+  const symbol=ex.type==="multiplication" ? "×" : "÷";
+  const assistMarkup=currentMode==="sudden" ? "" : `
+      <label class="assist-toggle">
+        <input type="checkbox" class="assist-check" ${ex.helpOpen?"checked":""}>
+        <span>Aide visuelle</span>
+      </label>`;
+
+  const assistanceMarkup=currentMode==="sudden" ? "" : `
+    <div class="assistance ${ex.helpOpen?"open":""}">
+      <div class="assist-head">
+        <div class="assist-title">Manipule la virgule et ajoute des zéros si tu en as besoin.</div>
+        <button class="reset-help" type="button">Réinitialiser l’aide</button>
+      </div>
+      <div class="board-scroll">
+        <div class="board"></div>
+        <div class="comma-row"></div>
+      </div>
+      <div class="help-tip">Touche une case vide pour ajouter ou retirer un 0. La virgule peut être glissée au doigt.</div>
+    </div>`;
+
+  article.innerHTML=`
+    <div class="exercise-main">
+      <div class="ex-number">${number}</div>
+      <div class="equation">${ex.display} ${symbol} ${ex.value} =</div>
+      <div class="answer-wrap">
+        <input class="answer" inputmode="decimal" autocomplete="off"
+               aria-label="Réponse à l'exercice ${number}" value="${ex.answer}">
+      </div>
+      ${assistMarkup}
+      <div class="feedback"></div>
+    </div>
+    ${assistanceMarkup}
+  `;
+
+  const input=article.querySelector(".answer");
+  const check=article.querySelector(".assist-check");
+  const assistance=article.querySelector(".assistance");
+  const reset=article.querySelector(".reset-help");
+
+  input.addEventListener("input",()=>{
+    ex.answer=input.value.replace(/[^0-9,.\s]/g,"").slice(0,14);
+    if(input.value!==ex.answer) input.value=ex.answer;
+  });
+
+  if(check && assistance && reset){
+    check.addEventListener("change",()=>{
+      if(pageLocked) return;
+      ex.helpOpen=check.checked;
+      if(check.checked){
+        ex.assistanceUsed=true;
+        if(!ex.helpState) ex.helpState=buildHelpState(ex);
+      }
+      assistance.classList.toggle("open",check.checked);
+      if(check.checked) renderHelp(article,ex);
+    });
+
+    reset.addEventListener("click",()=>{
+      if(pageLocked) return;
+      ex.helpState=buildHelpState(ex);
+      renderHelp(article,ex);
+    });
+
+    if(ex.helpOpen){
+      if(!ex.helpState) ex.helpState=buildHelpState(ex);
+      renderHelp(article,ex);
+    }
+  }
+  return article;
+}
+
+function renderHelp(article,ex){
+  const state=ex.helpState;
+  const board=article.querySelector(".board");
+  const commaRow=article.querySelector(".comma-row");
+  if(!state) return;
+
+  board.innerHTML="";
+  for(let i=0;i<CELL_COUNT;i++){
+    const cell=document.createElement("div");
+    cell.className="digit-cell empty";
+    const digitIndex=state.digitPositions.indexOf(i);
+
+    if(digitIndex!==-1){
+      cell.classList.remove("empty");
+      cell.textContent=state.parsed.digits[digitIndex];
+    }else if(state.addedZeros.includes(i)){
+      cell.classList.add("added-zero");
+      cell.textContent="0";
+    }else{
+      cell.textContent="";
+    }
+
+    if(i===state.selectedCommaSlot) cell.classList.add("boundary");
+
+    if(digitIndex===-1){
+      cell.addEventListener("click",()=>{
+        if(pageLocked) return;
+        const at=state.addedZeros.indexOf(i);
+        if(at===-1) state.addedZeros.push(i);
+        else state.addedZeros.splice(at,1);
+        renderHelp(article,ex);
+      });
+    }
+    board.appendChild(cell);
+  }
+
+  commaRow.innerHTML="";
+  for(let i=0;i<CELL_COUNT-1;i++){
+    const slot=document.createElement("div");
+    slot.className="comma-slot"+(i===state.selectedCommaSlot?" selected":"");
+    slot.dataset.slot=i;
+
+    if(i===state.originalCommaSlot && i!==state.selectedCommaSlot){
+      const ghost=document.createElement("span");
+      ghost.className="comma-ghost"; ghost.textContent=",";
+      slot.appendChild(ghost);
+    }
+    if(i===state.selectedCommaSlot){
+      const comma=document.createElement("span");
+      comma.className="comma"; comma.textContent=",";
+      slot.appendChild(comma);
+    }
+    commaRow.appendChild(slot);
+  }
+
+  let dragging=false,pointerId=null;
+  const closestSlot=x=>{
+    let best=0,dist=Infinity;
+    [...commaRow.children].forEach((slot,i)=>{
+      const r=slot.getBoundingClientRect();
+      const d=Math.abs(x-(r.left+r.width/2));
+      if(d<dist){dist=d;best=i}
+    });
+    return best;
+  };
+  commaRow.onpointerdown=e=>{
+    if(pageLocked) return;
+    const slot=e.target.closest(".comma-slot");
+    if(!slot) return;
+    e.preventDefault();
+    dragging=true;pointerId=e.pointerId;
+    state.selectedCommaSlot=Number(slot.dataset.slot);
+    commaRow.setPointerCapture?.(e.pointerId);
+    renderHelp(article,ex);
+  };
+  commaRow.onpointermove=e=>{
+    if(!dragging||e.pointerId!==pointerId||pageLocked) return;
+    e.preventDefault();
+    const next=closestSlot(e.clientX);
+    if(next!==state.selectedCommaSlot){
+      state.selectedCommaSlot=next;
+      renderHelp(article,ex);
+    }
+  };
+  const finish=e=>{
+    if(!dragging) return;
+    dragging=false;pointerId=null;
+  };
+  commaRow.onpointerup=finish;
+  commaRow.onpointercancel=finish;
+}
+
+function validatePage(){
+  if(pageLocked) return;
+
+  const isSudden=currentMode==="sudden";
+  const start=isSudden ? 0 : currentPage*PAGE_SIZE;
+  const pageEx=isSudden ? exercises : exercises.slice(start,start+PAGE_SIZE);
+  const blanks=pageEx.filter(ex=>String(ex.answer).trim()==="").length;
+
+  if(blanks){
+    pageMessage.textContent=`Il reste ${blanks} réponse${blanks>1?"s":""} à compléter.`;
+    return;
+  }
+
+  pageLocked=true;
+  pageMessage.textContent="";
+
+  if(isSudden){
+    const correctness=pageEx.map(ex=>isCorrect(ex.answer,ex));
+    const firstWrong=correctness.findIndex(ok=>!ok);
+
+    if(firstWrong===-1){
+      for(let i=0;i<PAGE_SIZE;i++){
+        const ex=pageEx[i];
+        ex.result="good";
+        const article=exerciseList.children[i];
+        article.classList.add("good");
+        article.querySelector(".feedback").textContent="✓ Correct.";
+        article.querySelector(".answer").disabled=true;
+      }
+      suddenScore+=PAGE_SIZE;
+      streakPill.textContent=`⚡ ${suddenScore} réussis de suite`;
+      headerInfo.textContent=`Mort subite · ${suddenScore} réussis`;
+      pageMessage.style.color="var(--green)";
+      pageMessage.textContent="Parfait : la série continue !";
+      validatePageBtn.classList.add("hidden");
+      nextPageBtn.classList.remove("hidden");
+      nextPageBtn.textContent="5 nouveaux calculs →";
+      return;
+    }
+
+    // On compte uniquement les exercices placés avant la première erreur.
+    suddenScore+=firstWrong;
+    suddenEnded=true;
+
+    for(let i=0;i<PAGE_SIZE;i++){
+      const ex=pageEx[i];
+      const article=exerciseList.children[i];
+      const feedback=article.querySelector(".feedback");
+      article.querySelector(".answer").disabled=true;
+
+      if(i<firstWrong){
+        ex.result="good";
+        article.classList.add("good");
+        feedback.textContent="✓ Correct.";
+      }else if(i===firstWrong){
+        ex.result="bad";
+        article.classList.add("bad");
+        feedback.textContent=`✗ Mort subite · réponse attendue : ${expected(ex)}`;
+      }else{
+        ex.result="unscored";
+        article.classList.add("unscored");
+        feedback.textContent="Non compté : la série s’est arrêtée à l’erreur précédente.";
+      }
+    }
+
+    streakPill.textContent=`⚡ ${suddenScore} réussi${suddenScore>1?"s":""} de suite`;
+    headerInfo.textContent=`Mort subite · ${suddenScore} réussi${suddenScore>1?"s":""}`;
+    pageMessage.style.color="var(--red)";
+    pageMessage.textContent=`Série terminée : ${suddenScore} exercice${suddenScore>1?"s":""} réussi${suddenScore>1?"s":""} sans erreur.`;
+    validatePageBtn.classList.add("hidden");
+    nextPageBtn.classList.remove("hidden");
+    nextPageBtn.textContent="Voir mon score →";
+    return;
+  }
+
+  for(let i=0;i<PAGE_SIZE;i++){
+    const ex=pageEx[i];
+    const article=exerciseList.children[i];
+    const correct=isCorrect(ex.answer,ex);
+    ex.result=correct ? (ex.assistanceUsed ? "helped" : "good") : "bad";
+
+    article.classList.add(ex.result);
+    const feedback=article.querySelector(".feedback");
+    if(ex.result==="good") feedback.textContent="✓ Correct, sans aide.";
+    if(ex.result==="helped") feedback.textContent="✓ Correct, avec aide visuelle.";
+    if(ex.result==="bad") feedback.textContent=`✗ À revoir · réponse attendue : ${expected(ex)}`;
+
+    article.querySelector(".answer").disabled=true;
+    const assistCheck=article.querySelector(".assist-check");
+    const resetHelp=article.querySelector(".reset-help");
+    if(assistCheck) assistCheck.disabled=true;
+    if(resetHelp) resetHelp.disabled=true;
+  }
+
+  validatePageBtn.classList.add("hidden");
+  nextPageBtn.classList.remove("hidden");
+  nextPageBtn.textContent=currentPage===0 ? "Page suivante →" : "Voir mon score →";
+}
+
+function showResult(){
+  if(currentMode==="sudden"){
+    let previous=0;
+    try{previous=Number(localStorage.getItem("decimalSprint_sudden_best")||0)}catch(e){}
+    if(suddenScore>previous){
+      try{localStorage.setItem("decimalSprint_sudden_best",String(suddenScore))}catch(e){}
+    }
+
+    exerciseScreen.classList.add("hidden");
+    resultScreen.classList.remove("hidden");
+    headerInfo.textContent="";
+    menuBtn.classList.remove("hidden");
+    $("#resultKicker").textContent="Mort subite terminée";
+    $("#resultTitle").textContent="Ta série";
+    $("#resultTotal").textContent=suddenScore;
+    $("#resultDenom").textContent=` exercice${suddenScore>1?"s":""} réussi${suddenScore>1?"s":""} de suite`;
+    $("#resultBreakdown").classList.add("hidden");
+    $("#resultDots").classList.add("hidden");
+    renderMenuScores();
+    return;
+  }
+
+  saveLastResult();
+  exerciseScreen.classList.add("hidden");
+  resultScreen.classList.remove("hidden");
+  headerInfo.textContent="";
+  menuBtn.classList.remove("hidden");
+
+  $("#resultKicker").textContent="Série terminée";
+  $("#resultTitle").textContent="Ton résultat";
+  $("#resultDenom").textContent="/ 10";
+  $("#resultBreakdown").classList.remove("hidden");
+  $("#resultDots").classList.remove("hidden");
+
+  const green=exercises.filter(x=>x.result==="good").length;
+  const orange=exercises.filter(x=>x.result==="helped").length;
+  const red=exercises.filter(x=>x.result==="bad").length;
+  $("#resultTotal").textContent=green+orange;
+  $("#resultGreen").textContent=`${green} sans aide`;
+  $("#resultOrange").textContent=`${orange} avec aide`;
+  $("#resultRed").textContent=`${red} à revoir`;
+
+  const dots=$("#resultDots");
+  dots.innerHTML="";
+  exercises.forEach(ex=>{
+    const d=document.createElement("i");
+    d.className="score-dot "+ex.result;
+    dots.appendChild(d);
+  });
+  renderMenuScores();
+}
+
+function goMenu(){
+  exerciseScreen.classList.add("hidden");
+  resultScreen.classList.add("hidden");
+  menuScreen.classList.remove("hidden");
+  menuBtn.classList.add("hidden");
+  headerInfo.textContent="";
+  renderMenuScores();
+}
+
+document.querySelectorAll(".mode-card").forEach(btn=>{
+  btn.addEventListener("click",()=>startSeries(btn.dataset.mode));
+});
+validatePageBtn.addEventListener("click",validatePage);
+nextPageBtn.addEventListener("click",()=>{
+  if(!pageLocked) return;
+
+  if(currentMode==="sudden"){
+    if(suddenEnded){
+      showResult();
+    }else{
+      currentPage++;
+      exercises=makeSuddenPage();
+      renderPage();
+    }
+    window.scrollTo({top:0,behavior:"smooth"});
+    return;
+  }
+
+  if(currentPage===0){
+    currentPage=1;
+    renderPage();
+    window.scrollTo({top:0,behavior:"smooth"});
+  }else{
+    showResult();
+    window.scrollTo({top:0,behavior:"smooth"});
+  }
+});
+menuBtn.addEventListener("click",goMenu);
+$("#resultMenuBtn").addEventListener("click",goMenu);
+$("#retryBtn").addEventListener("click",()=>startSeries(currentMode));
+
+renderMenuScores();
+})();
+</script>
+</body>
+</html>
