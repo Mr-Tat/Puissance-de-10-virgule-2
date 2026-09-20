@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Défis virgule — ×10 et ÷10</title>
+<title>Puissance de 10 · Exercices — v1.0</title>
 <style>
 :root{
   --bg:#17202b;
@@ -68,6 +68,15 @@ header{
   box-shadow:0 6px 14px rgba(19,127,142,.24);
 }
 h1{font-size:clamp(1.15rem,2vw,1.55rem);margin:0}
+.app-title-wrap{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+.version-badge{
+  display:inline-flex;align-items:center;
+  padding:3px 7px;border-radius:999px;
+  background:#ece9e3;color:#7d7b75;
+  border:1px solid #ddd8d0;
+  font-size:.67rem;font-weight:850;letter-spacing:.03em;
+  white-space:nowrap;
+}
 .header-info{font-weight:800;color:var(--muted)}
 main{padding:18px 22px 22px}
 button{
@@ -657,7 +666,7 @@ button:disabled{opacity:.48;cursor:not-allowed;transform:none}
     <div class="brand">
       <button id="menuBtn" class="secondary menu-btn hidden">← Menu</button>
       <div class="logo">10</div>
-      <h1>Défis virgule</h1>
+      <div class="app-title-wrap"><h1>Puissance de 10 · Exercices</h1><span class="version-badge">v1.0</span></div>
     </div>
     <div id="headerInfo" class="header-info"></div>
   </header>
@@ -1437,6 +1446,39 @@ function buildHelpState(ex){
   };
 }
 
+
+function enregistrerScoreMathas(score, total, niveau) {
+  const key = "mathas_scores_" + window.location.pathname.toLowerCase();
+
+  let scores = [];
+
+  try {
+    scores = JSON.parse(localStorage.getItem(key)) || [];
+  } catch {
+    scores = [];
+  }
+
+  scores.unshift({
+    score,
+    total,
+    niveau,
+    date: new Date().toISOString()
+  });
+
+  try {
+    localStorage.setItem(
+      key,
+      JSON.stringify(scores.slice(0, 3))
+    );
+  } catch {}
+}
+
+function niveauMathas(mode){
+  if(mode==="multiplication") return "Multiplications";
+  if(mode==="division") return "Divisions";
+  return "Mélange";
+}
+
 function modeName(mode){
   if(mode==="multiplication") return "Multiplication";
   if(mode==="division") return "Division";
@@ -2183,7 +2225,14 @@ function showResult(){
   const green=statuses.filter(x=>x==="good").length;
   const purple=statuses.filter(x=>x==="helped").length;
   const red=statuses.filter(x=>x==="bad").length;
-  $("#resultTotal").textContent=green+purple;
+  const scoreObtenu=green+purple;
+  $("#resultTotal").textContent=scoreObtenu;
+
+  enregistrerScoreMathas(
+    scoreObtenu,
+    SERIES_SIZE,
+    niveauMathas(currentMode)
+  );
   $("#resultGreen").textContent=`${green} sans aide`;
   $("#resultOrange").textContent=`${purple} avec aide`;
   $("#resultRed").textContent=`${red} à revoir`;
