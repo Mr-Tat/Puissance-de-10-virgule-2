@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Puissance de 10 · Exercices — v1.1</title>
+<title>Puissance de 10 · Exercices — v1.3</title>
 <style>
 :root{
   --bg:#17202b;
@@ -658,6 +658,66 @@ button:disabled{opacity:.48;cursor:not-allowed;transform:none}
   }
 }
 
+
+/* Progression des niveaux */
+.mode-card{position:relative}
+.mode-card.locked{
+  opacity:.48;
+  filter:saturate(.55);
+  cursor:not-allowed;
+}
+.mode-card.locked:hover{transform:none}
+.mode-card.locked::after{
+  content:attr(data-lock-reason);
+  position:absolute;
+  top:12px;
+  right:12px;
+  max-width:150px;
+  padding:6px 9px;
+  border-radius:999px;
+  background:rgba(42,49,58,.88);
+  color:#fff;
+  font-size:.72rem;
+  font-weight:850;
+  line-height:1.15;
+  text-align:center;
+  box-shadow:0 4px 12px rgba(20,25,30,.14);
+}
+
+/* Accès enseignant / Master mode : volontairement très discret. */
+.master-toggle{
+  position:fixed;
+  left:7px;
+  bottom:7px;
+  z-index:8999;
+  width:27px;
+  height:27px;
+  padding:0;
+  display:grid;
+  place-items:center;
+  border:1px solid rgba(65,75,85,.15);
+  border-radius:50%;
+  background:rgba(255,255,255,.32);
+  color:#27313a;
+  font:850 .72rem/1 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  opacity:.13;
+  cursor:pointer;
+  box-shadow:none;
+  transition:opacity .15s ease, background .15s ease, transform .15s ease;
+}
+.master-toggle:hover,.master-toggle:focus-visible{
+  opacity:.58;
+  background:rgba(255,255,255,.92);
+  outline:none;
+}
+.master-toggle.active{
+  opacity:.38;
+  background:rgba(214,247,230,.88);
+  border-color:rgba(18,155,94,.35);
+  color:#0d7b49;
+}
+.master-toggle:active{transform:scale(.94)}
+
 </style>
 </head>
 <body>
@@ -666,7 +726,7 @@ button:disabled{opacity:.48;cursor:not-allowed;transform:none}
     <div class="brand">
       <button id="menuBtn" class="secondary menu-btn hidden">← Menu</button>
       <div class="logo">10</div>
-      <div class="app-title-wrap"><h1>Puissance de 10 · Exercices</h1><span class="version-badge">v1.1</span></div>
+      <div class="app-title-wrap"><h1>Puissance de 10 · Exercices</h1><span class="version-badge">v1.3</span></div>
     </div>
     <div id="headerInfo" class="header-info"></div>
   </header>
@@ -806,6 +866,9 @@ button:disabled{opacity:.48;cursor:not-allowed;transform:none}
   </main>
 </div>
 
+<button id="masterToggle" class="master-toggle" type="button"
+        aria-label="Master mode" aria-pressed="false" title="Master mode">M</button>
+
 <script>
 (() => {
 "use strict";
@@ -815,6 +878,9 @@ const CELL_COUNT=11;
 const PAGE_SIZE=4;
 const SERIES_SIZE=10;
 const NORMAL_EXERCISES=8;
+const UNLOCK_STORAGE_KEY="decimalSprint_unlocks_v2";
+const MASTER_SESSION_KEY="decimalSprint_master_session_v1";
+const MASTER_PASSWORD="Thecakeisalie";
 
 const $=s=>document.querySelector(s);
 const menuScreen=$("#menuScreen");
@@ -833,6 +899,7 @@ const touchKeypad=$("#touchKeypad");
 const nextAnswerKey=touchKeypad.querySelector('[data-key="next"]');
 const keypadTarget=$("#keypadTarget");
 const exerciseWorkspace=$("#exerciseWorkspace");
+const masterToggle=$("#masterToggle");
 
 let currentMode=null;
 let currentPage=0;
@@ -846,6 +913,8 @@ let correctionMode=false;
 let matchPages=[];
 let suddenScreenType="regular";
 let suddenMatch=null;
+let unlockState=loadUnlockState();
+let masterMode=loadMasterMode();
 
 function randInt(min,max){return Math.floor(Math.random()*(max-min+1))+min}
 function choice(arr){return arr[Math.floor(Math.random()*arr.length)]}
@@ -1447,6 +1516,107 @@ function buildHelpState(ex){
 }
 
 
+
+function loadUnlockState(){
+  try{
+    const raw=localStorage.getItem(UNLOCK_STORAGE_KEY);
+    if(!raw) return {division:false,mixed:false,sudden:false,migrated:false};
+    return Object.assign({division:false,mixed:false,sudden:false,migrated:false},JSON.parse(raw));
+  }catch(e){
+    return {division:false,mixed:false,sudden:false,migrated:false};
+  }
+}
+
+function saveUnlockState(){
+  try{localStorage.setItem(UNLOCK_STORAGE_KEY,JSON.stringify(unlockState));}catch(e){}
+}
+
+function loadMasterMode(){
+  try{return sessionStorage.getItem(MASTER_SESSION_KEY)==="1";}catch(e){return false;}
+}
+
+function scoreFromStoredSeries(mode){
+  const data=loadLast(mode);
+  if(!data) return null;
+  // Seules les réussites vertes "sans aide" comptent pour la progression.
+  return data.filter(x=>x==="good").length;
+}
+
+function ensureProgressionMigration(){
+  if(unlockState.migrated) return;
+  const mult=scoreFromStoredSeries("multiplication");
+  const div=scoreFromStoredSeries("division");
+  const mixed=scoreFromStoredSeries("mixed");
+  if(mult!==null && mult>=9) unlockState.division=true;
+  if(unlockState.division && div!==null && div>=9) unlockState.mixed=true;
+  if(unlockState.mixed && mixed!==null && mixed>=9) unlockState.sudden=true;
+  unlockState.migrated=true;
+  saveUnlockState();
+}
+
+function modeUnlocked(mode){
+  if(masterMode) return true;
+  if(mode==="multiplication") return true;
+  if(mode==="division") return !!unlockState.division;
+  if(mode==="mixed") return !!unlockState.mixed;
+  if(mode==="sudden") return !!unlockState.sudden;
+  return false;
+}
+
+function updateProgressionAfterResult(mode,score,total){
+  // Le Master peut faire des scores sans changer les déblocages élèves.
+  if(masterMode || total<=0 || score/total<0.9) return;
+  let changed=false;
+  if(mode==="multiplication" && !unlockState.division){
+    unlockState.division=true; changed=true;
+  }else if(mode==="division" && !unlockState.mixed){
+    unlockState.mixed=true; changed=true;
+  }else if(mode==="mixed" && !unlockState.sudden){
+    unlockState.sudden=true; changed=true;
+  }
+  if(changed) saveUnlockState();
+}
+
+function renderModeLocks(){
+  document.querySelectorAll(".mode-card").forEach(card=>{
+    const locked=!modeUnlocked(card.dataset.mode);
+    card.classList.toggle("locked",locked);
+    card.setAttribute("aria-disabled",locked ? "true" : "false");
+    card.tabIndex=locked ? -1 : 0;
+    if(locked){
+      card.dataset.lockReason="🔒 90 % sans aide";
+      card.title="Obtiens au moins 90 % sans aide au niveau précédent pour le débloquer.";
+    }else{
+      card.removeAttribute("data-lock-reason");
+      card.title="";
+    }
+  });
+}
+
+function updateMasterButton(){
+  if(!masterToggle) return;
+  masterToggle.classList.toggle("active",masterMode);
+  masterToggle.setAttribute("aria-pressed",masterMode ? "true" : "false");
+  masterToggle.title=masterMode ? "Master mode actif jusqu’à la fermeture" : "Master mode";
+}
+
+function activateMasterMode(){
+  if(masterMode){updateMasterButton();renderModeLocks();return;}
+  const password=window.prompt("Mot de passe Master mode :");
+  if(password===null) return;
+  if(password===MASTER_PASSWORD){
+    masterMode=true;
+    try{sessionStorage.setItem(MASTER_SESSION_KEY,"1")}catch(e){}
+    updateMasterButton();
+    renderModeLocks();
+  }else{
+    masterToggle?.animate(
+      [{transform:"translateX(0)"},{transform:"translateX(-3px)"},{transform:"translateX(3px)"},{transform:"translateX(0)"}],
+      {duration:220}
+    );
+  }
+}
+
 function estMeilleurResultat(nouveau, ancien) {
   if (!ancien) return true;
 
@@ -1572,6 +1742,7 @@ function renderMenuScores(){
   let record=0;
   try{record=Number(localStorage.getItem("decimalSprint_sudden_best")||0)}catch(e){}
   suddenLabel.textContent=record ? `Record : ${record} réussi${record>1?"s":""} de suite` : "Record : —";
+  renderModeLocks();
 }
 
 
@@ -1667,6 +1838,7 @@ function syncActiveInput(){
 }
 
 function startSeries(mode){
+  if(!modeUnlocked(mode)) return;
   currentMode=mode;
   currentPage=0;
   pageLocked=false;
@@ -2271,6 +2443,9 @@ function showResult(){
   const scoreObtenu=green+purple;
   $("#resultTotal").textContent=scoreObtenu;
 
+  // Pour débloquer le niveau suivant, seules les réussites sans aide comptent.
+  updateProgressionAfterResult(currentMode,green,SERIES_SIZE);
+
   enregistrerResultatMathas(
     scoreObtenu,
     SERIES_SIZE,
@@ -2347,6 +2522,7 @@ touchKeypad.addEventListener("click",e=>{
 document.querySelectorAll(".mode-card").forEach(btn=>{
   btn.addEventListener("click",()=>startSeries(btn.dataset.mode));
 });
+masterToggle?.addEventListener("click",activateMasterMode);
 validatePageBtn.addEventListener("click",validatePage);
 nextPageBtn.addEventListener("click",()=>{
   if(!pageLocked) return;
@@ -2389,6 +2565,8 @@ menuBtn.addEventListener("click",goMenu);
 $("#resultMenuBtn").addEventListener("click",goMenu);
 $("#retryBtn").addEventListener("click",()=>startSeries(currentMode));
 
+ensureProgressionMigration();
+updateMasterButton();
 renderMenuScores();
 })();
 </script>
