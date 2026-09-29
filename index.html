@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Puissance de 10 · Exercices — v1.3</title>
+<title>Puissance de 10 · Exercices — v1.4</title>
 <style>
 :root{
   --bg:#17202b;
@@ -78,6 +78,7 @@ h1{font-size:clamp(1.15rem,2vw,1.55rem);margin:0}
   white-space:nowrap;
 }
 .header-info{font-weight:800;color:var(--muted)}
+.header-actions{display:flex;align-items:center;justify-content:flex-end;gap:10px;flex-wrap:wrap}
 main{padding:18px 22px 22px}
 button{
   font:inherit;font-weight:850;border:0;border-radius:13px;
@@ -626,36 +627,27 @@ button:disabled{opacity:.48;cursor:not-allowed;transform:none}
   .exercise.sudden .feedback{grid-column:2}
 }
 
-/* Bouton plein écran commun */
+/* Bouton plein écran intégré à l'en-tête : il ne flotte plus au-dessus du contenu. */
 .fullscreen-toggle{
-  position:fixed;
-  top:12px;
-  right:12px;
-  z-index:9000;
-  min-height:42px;
-  padding:9px 14px;
+  position:static;
+  flex:0 0 auto;
+  min-height:38px;
+  padding:7px 12px;
   border:1px solid rgba(74,85,96,.22);
-  border-radius:13px;
-  background:rgba(255,255,255,.96);
+  border-radius:12px;
+  background:rgba(255,255,255,.82);
   color:#26323d;
-  font:800 .9rem/1.1 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
-  box-shadow:0 7px 20px rgba(28,39,49,.16);
+  font:800 .84rem/1.1 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  box-shadow:none;
   cursor:pointer;
-  backdrop-filter:blur(5px);
-  -webkit-backdrop-filter:blur(5px);
   touch-action:manipulation;
+  white-space:nowrap;
 }
-.fullscreen-toggle:hover{transform:translateY(-1px)}
+.fullscreen-toggle:hover{transform:translateY(-1px);background:#fff}
 .fullscreen-toggle:active{transform:translateY(1px)}
 .fullscreen-toggle[hidden]{display:none!important}
 @media(max-width:680px){
-  .fullscreen-toggle{
-    top:8px;
-    right:8px;
-    min-height:38px;
-    padding:7px 10px;
-    font-size:.78rem;
-  }
+  .fullscreen-toggle{min-height:36px;padding:6px 9px;font-size:.74rem}
 }
 
 
@@ -718,6 +710,66 @@ button:disabled{opacity:.48;cursor:not-allowed;transform:none}
 }
 .master-toggle:active{transform:scale(.94)}
 
+
+.master-controls{
+  position:fixed;
+  left:42px;
+  bottom:7px;
+  z-index:8998;
+  display:flex;
+  gap:6px;
+  align-items:center;
+}
+.master-controls[hidden]{display:none!important}
+.master-control-btn{
+  min-height:30px;
+  padding:5px 9px;
+  border-radius:9px;
+  font-size:.72rem;
+  font-weight:850;
+  box-shadow:0 4px 12px rgba(20,30,40,.12);
+}
+.master-reset-btn{
+  background:#fff2ef;
+  color:#a53a2d;
+  border:1px solid #efc5bd;
+}
+.master-exit-btn{
+  background:rgba(255,255,255,.92);
+  color:#4d5965;
+  border:1px solid #d7dde3;
+}
+
+.master-dialog{
+  width:min(390px,calc(100vw - 30px));
+  padding:0;
+  border:0;
+  border-radius:18px;
+  background:#fff;
+  color:#26323d;
+  box-shadow:0 24px 70px rgba(10,18,28,.34);
+}
+.master-dialog::backdrop{background:rgba(14,20,29,.42);backdrop-filter:blur(2px)}
+.master-dialog-form{padding:20px}
+.master-dialog-title{margin:0 0 5px;font-size:1.18rem;font-weight:900}
+.master-dialog-note{margin:0 0 14px;color:#6b7480;font-size:.88rem;line-height:1.4}
+.master-password{
+  width:100%;
+  min-height:48px;
+  padding:10px 13px;
+  border:2px solid #dce2e8;
+  border-radius:12px;
+  font:800 1.1rem/1 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  letter-spacing:.18em;
+  background:#fbfcfd;
+  color:#26323d;
+  outline:none;
+}
+.master-password:focus{border-color:#6d8fb5;box-shadow:0 0 0 3px rgba(109,143,181,.13)}
+.master-dialog-error{min-height:21px;margin:7px 0 0;color:#bd3d45;font-size:.8rem;font-weight:800}
+.master-dialog-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:13px}
+.master-dialog-actions button{min-height:38px;padding:7px 12px;font-size:.84rem}
+
 </style>
 </head>
 <body>
@@ -726,9 +778,13 @@ button:disabled{opacity:.48;cursor:not-allowed;transform:none}
     <div class="brand">
       <button id="menuBtn" class="secondary menu-btn hidden">← Menu</button>
       <div class="logo">10</div>
-      <div class="app-title-wrap"><h1>Puissance de 10 · Exercices</h1><span class="version-badge">v1.3</span></div>
+      <div class="app-title-wrap"><h1>Puissance de 10 · Exercices</h1><span class="version-badge">v1.4</span></div>
     </div>
-    <div id="headerInfo" class="header-info"></div>
+    <div class="header-actions">
+      <div id="headerInfo" class="header-info"></div>
+      <button id="fullscreenToggle" class="fullscreen-toggle" type="button"
+              aria-label="Mettre l’application en plein écran">⛶ Plein écran</button>
+    </div>
   </header>
 
   <main>
@@ -866,6 +922,27 @@ button:disabled{opacity:.48;cursor:not-allowed;transform:none}
   </main>
 </div>
 
+
+<div id="masterControls" class="master-controls" hidden>
+  <button id="masterResetBtn" class="master-control-btn master-reset-btn" type="button">Retour à 0</button>
+  <button id="masterExitBtn" class="master-control-btn master-exit-btn" type="button">Quitter Master</button>
+</div>
+
+<dialog id="masterDialog" class="master-dialog" aria-labelledby="masterDialogTitle">
+  <form id="masterForm" class="master-dialog-form">
+    <h2 id="masterDialogTitle" class="master-dialog-title">Master mode</h2>
+    <p class="master-dialog-note">Entre le mot de passe enseignant.</p>
+    <input id="masterPassword" class="master-password" type="password"
+           autocomplete="off" autocapitalize="off" spellcheck="false"
+           aria-label="Mot de passe Master mode">
+    <div id="masterDialogError" class="master-dialog-error" aria-live="polite"></div>
+    <div class="master-dialog-actions">
+      <button id="masterCancelBtn" class="secondary" type="button">Annuler</button>
+      <button class="primary" type="submit">Déverrouiller</button>
+    </div>
+  </form>
+</dialog>
+
 <button id="masterToggle" class="master-toggle" type="button"
         aria-label="Master mode" aria-pressed="false" title="Master mode">M</button>
 
@@ -900,6 +977,14 @@ const nextAnswerKey=touchKeypad.querySelector('[data-key="next"]');
 const keypadTarget=$("#keypadTarget");
 const exerciseWorkspace=$("#exerciseWorkspace");
 const masterToggle=$("#masterToggle");
+const masterControls=$("#masterControls");
+const masterResetBtn=$("#masterResetBtn");
+const masterExitBtn=$("#masterExitBtn");
+const masterDialog=$("#masterDialog");
+const masterForm=$("#masterForm");
+const masterPassword=$("#masterPassword");
+const masterCancelBtn=$("#masterCancelBtn");
+const masterDialogError=$("#masterDialogError");
 
 let currentMode=null;
 let currentPage=0;
@@ -1598,23 +1683,74 @@ function updateMasterButton(){
   masterToggle.classList.toggle("active",masterMode);
   masterToggle.setAttribute("aria-pressed",masterMode ? "true" : "false");
   masterToggle.title=masterMode ? "Master mode actif jusqu’à la fermeture" : "Master mode";
+  if(masterControls) masterControls.hidden=!masterMode;
 }
 
-function activateMasterMode(){
+function openMasterDialog(){
   if(masterMode){updateMasterButton();renderModeLocks();return;}
-  const password=window.prompt("Mot de passe Master mode :");
-  if(password===null) return;
-  if(password===MASTER_PASSWORD){
-    masterMode=true;
-    try{sessionStorage.setItem(MASTER_SESSION_KEY,"1")}catch(e){}
-    updateMasterButton();
-    renderModeLocks();
-  }else{
-    masterToggle?.animate(
-      [{transform:"translateX(0)"},{transform:"translateX(-3px)"},{transform:"translateX(3px)"},{transform:"translateX(0)"}],
-      {duration:220}
-    );
+  if(!masterDialog || !masterPassword) return;
+  masterPassword.value="";
+  masterDialogError.textContent="";
+  masterDialog.showModal();
+  setTimeout(()=>masterPassword.focus(),0);
+}
+
+function closeMasterDialog(){
+  if(masterDialog?.open) masterDialog.close();
+  if(masterPassword) masterPassword.value="";
+  if(masterDialogError) masterDialogError.textContent="";
+}
+
+function activateMasterMode(password){
+  if(password!==MASTER_PASSWORD){
+    masterDialogError.textContent="Mot de passe incorrect.";
+    masterPassword.value="";
+    masterPassword.focus();
+    return;
   }
+  masterMode=true;
+  try{sessionStorage.setItem(MASTER_SESSION_KEY,"1")}catch(e){}
+  closeMasterDialog();
+  updateMasterButton();
+  renderModeLocks();
+}
+
+function exitMasterMode(){
+  masterMode=false;
+  try{sessionStorage.removeItem(MASTER_SESSION_KEY)}catch(e){}
+  updateMasterButton();
+  renderModeLocks();
+}
+
+function resetToZero(){
+  if(!masterMode) return;
+  const ok=window.confirm(
+    "Remettre les scores et les déblocages à zéro ? Le record Mort subite sera conservé."
+  );
+  if(!ok) return;
+
+  let suddenRecord=null;
+  try{suddenRecord=localStorage.getItem("decimalSprint_sudden_best")}catch(e){}
+
+  try{
+    localStorage.removeItem("decimalSprint_multiplication");
+    localStorage.removeItem("decimalSprint_division");
+    localStorage.removeItem("decimalSprint_mixed");
+    localStorage.removeItem(UNLOCK_STORAGE_KEY);
+    localStorage.removeItem("mathas_scores_" + window.location.pathname.toLowerCase());
+    if(suddenRecord!==null){
+      localStorage.setItem("decimalSprint_sudden_best",suddenRecord);
+    }
+  }catch(e){}
+
+  unlockState={division:false,mixed:false,sudden:false,migrated:true};
+  saveUnlockState();
+  currentMode=null;
+  exercises=[];
+  currentPage=0;
+  activeAnswerIndex=null;
+  goMenu();
+  window.alert("Retour à 0 effectué. Le record Mort subite a été conservé ; ses conditions de déblocage devront être remplies à nouveau.");
 }
 
 function estMeilleurResultat(nouveau, ancien) {
@@ -2522,7 +2658,18 @@ touchKeypad.addEventListener("click",e=>{
 document.querySelectorAll(".mode-card").forEach(btn=>{
   btn.addEventListener("click",()=>startSeries(btn.dataset.mode));
 });
-masterToggle?.addEventListener("click",activateMasterMode);
+masterToggle?.addEventListener("click",openMasterDialog);
+masterCancelBtn?.addEventListener("click",closeMasterDialog);
+masterForm?.addEventListener("submit",e=>{
+  e.preventDefault();
+  activateMasterMode(masterPassword.value);
+});
+masterDialog?.addEventListener("cancel",e=>{
+  e.preventDefault();
+  closeMasterDialog();
+});
+masterResetBtn?.addEventListener("click",resetToZero);
+masterExitBtn?.addEventListener("click",exitMasterMode);
 validatePageBtn.addEventListener("click",validatePage);
 nextPageBtn.addEventListener("click",()=>{
   if(!pageLocked) return;
@@ -2570,9 +2717,6 @@ updateMasterButton();
 renderMenuScores();
 })();
 </script>
-
-<button id="fullscreenToggle" class="fullscreen-toggle" type="button"
-        aria-label="Mettre l’application en plein écran">⛶ Plein écran</button>
 
 
 <script>
